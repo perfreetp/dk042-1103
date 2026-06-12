@@ -1,0 +1,89 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: 0 2rpx 8rpx rgba(200, 29, 37, 0.04);
+  overflow: hidden;
+}
+
+.tabs {
+  display: flex;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.tab {
+  flex: 1;
+  text-align: center;
+  padding: $spacing-sm 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  border-radius: $radius-md;
+  transition: all $transition-base;
+
+  &.active {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+    background: $color-bg-tag;
+  }
+}
+
+.pickerContent {
+  padding: $spacing-lg;
+  text-align: center;
+}
+
+.pickerHint {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.dateScroll {
+  @include scroll-x-container;
+  padding: $spacing-md $spacing-lg;
+  white-space: nowrap;
+}
+
+.dateItem {
+  @include scroll-x-item(120rpx);
+  text-align: center;
+  padding: $spacing-sm $spacing-md;
+  margin-right: $spacing-sm;
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &.dateItemActive {
+    background: $color-primary;
+    color: $color-text-white;
+  }
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  padding: $spacing-md $spacing-lg;
+  gap: $spacing-sm;
+}
+
+.option {
+  padding: $spacing-sm $spacing-lg;
+  background: $color-bg-page;
+  border-radius: $radius-round;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &.optionActive {
+    background: $color-primary;
+    color: $color-text-white;
+  }
+}

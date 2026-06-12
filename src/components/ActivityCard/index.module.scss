@@ -1,0 +1,185 @@
+@use '@/styles/variables.scss' as *;
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: 0 2rpx 12rpx rgba(200, 29, 37, 0.06);
+  margin-bottom: $spacing-md;
+  overflow: hidden;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.coverWrapper {
+  position: relative;
+  width: 100%;
+  height: 320rpx;
+}
+
+.cover {
+  width: 100%;
+  height: 100%;
+}
+
+.typeTag {
+  position: absolute;
+  top: $spacing-md;
+  left: $spacing-md;
+  padding: 4rpx 16rpx;
+  background: rgba(200, 29, 37, 0.9);
+  color: $color-text-white;
+  border-radius: $radius-xs;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.dynastyTag {
+  position: absolute;
+  top: $spacing-md;
+  left: 110rpx;
+  padding: 4rpx 16rpx;
+  background: rgba(212, 168, 75, 0.9);
+  color: $color-text-white;
+  border-radius: $radius-xs;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.fullTag {
+  position: absolute;
+  top: $spacing-md;
+  right: $spacing-md;
+  padding: 4rpx 16rpx;
+  background: rgba(153, 153, 153, 0.9);
+  color: $color-text-white;
+  border-radius: $radius-xs;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.content {
+  padding: $spacing-lg;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  line-height: $line-height-tight;
+  display: block;
+  @include text-ellipsis;
+}
+
+.infoRow {
+  display: flex;
+  margin-top: $spacing-md;
+  padding: $spacing-md 0;
+  border-top: 1rpx solid $color-divider;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.infoItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.infoLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.infoValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.fee {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.progressBar {
+  position: relative;
+  height: 8rpx;
+  background: $color-bg-tag;
+  border-radius: $radius-round;
+  margin-top: $spacing-md;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-round;
+  transition: width $transition-base;
+}
+
+.progressText {
+  position: absolute;
+  right: 0;
+  top: -36rpx;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: $spacing-lg;
+}
+
+.organizer {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  overflow: hidden;
+}
+
+.organizerAvatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-sm;
+  flex-shrink: 0;
+}
+
+.organizerName {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  @include text-ellipsis;
+}
+
+.btn {
+  @include button-reset;
+  height: $button-height-sm;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  min-width: 140rpx;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.96);
+  }
+}
+
+.btnPrimary {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  border: none;
+}
+
+.btnDisabled {
+  background: $color-text-disabled;
+  color: $color-text-white;
+  border: none;
+}

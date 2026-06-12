@@ -1,0 +1,117 @@
+import type { Shooting } from '@/types';
+import { mockUsers } from './users';
+
+export const mockShootings: Shooting[] = [
+  {
+    id: '1',
+    type: 'photographer',
+    title: '寻一位汉服摄影师合作创作唐制主题',
+    description: '本人女摄，坐标杭州，想拍一组唐制敦煌风汉服创作。需要一位有经验的摄影师，擅长古风拍摄，有灯光设备最好。时间定在6月20日左右，地点暂定杭州植物园。出片共享，费用AA。',
+    city: '杭州',
+    date: '2026-06-20',
+    budget: 'AA制',
+    style: 'tang',
+    coverImage: 'https://picsum.photos/id/103/750/400',
+    publisher: mockUsers[0],
+    publishTime: '2026-06-10 14:30',
+    tags: ['唐制', '敦煌', '创作']
+  },
+  {
+    id: '2',
+    type: 'makeupArtist',
+    title: '北京地区承接汉服妆造',
+    description: '专业汉服妆造师，从事汉服妆造5年，精通各朝各代妆容发型。提供上门服务，化妆品均为一线品牌。价格：日常妆199元，精致妆299元，婚服妆688元。长期合作可优惠。',
+    city: '北京',
+    date: '长期有效',
+    budget: '199-688元',
+    style: 'han',
+    coverImage: 'https://picsum.photos/id/225/750/400',
+    publisher: mockUsers[1],
+    publishTime: '2026-06-09 09:15',
+    tags: ['妆造', '北京', '专业']
+  },
+  {
+    id: '3',
+    type: 'model',
+    title: '上海寻汉服模特拍明制商图',
+    description: '汉服商家寻模特拍摄明制新品图册，要求身高165-175cm，身材匀称，有汉服拍摄经验优先。拍摄时间6月25日，费用800元/天，包午餐和交通。有意者请私信发送模卡。',
+    city: '上海',
+    date: '2026-06-25',
+    budget: '800元/天',
+    style: 'ming',
+    coverImage: 'https://picsum.photos/id/119/750/400',
+    publisher: mockUsers[2],
+    publishTime: '2026-06-08 16:45',
+    tags: ['明制', '商拍', '模特']
+  },
+  {
+    id: '4',
+    type: 'photographer',
+    title: '成都约拍宋制汉服，有偿',
+    description: '周末约拍宋制汉服，地点浣花溪公园。需要模特一名，女生，有汉服拍摄经验。费用300元，精修12张，底片全送。时间6月18日上午。有意私信。',
+    city: '成都',
+    date: '2026-06-18',
+    budget: '300元',
+    style: 'song',
+    coverImage: 'https://picsum.photos/id/1015/750/400',
+    publisher: mockUsers[3],
+    publishTime: '2026-06-12 11:20',
+    tags: ['宋制', '成都', '约拍']
+  },
+  {
+    id: '5',
+    type: 'makeupArtist',
+    title: '广州汉服妆娘接妆',
+    description: '汉服妆娘接妆啦！擅长唐制、宋制、明制妆容，可做复杂发型。日常妆168元，包含假睫毛和简单饰品。广州佛山地区可上门，上门费50元。需要提前3天预约。',
+    city: '广州',
+    date: '长期有效',
+    budget: '168元起',
+    style: 'tang',
+    coverImage: 'https://picsum.photos/id/230/750/400',
+    publisher: mockUsers[4],
+    publishTime: '2026-06-11 08:30',
+    tags: ['妆造', '广州', '接妆']
+  },
+  {
+    id: '6',
+    type: 'model',
+    title: '深圳汉服模特求合作',
+    description: '模特一枚，身高168cm，体重48kg，三围85-62-88。穿汉服3年，有丰富拍摄经验。可接汉服商拍、创作、活动走秀。收费合理，也接受互免创作。坐标深圳，周边城市可去。',
+    city: '深圳',
+    date: '长期有效',
+    budget: '面议',
+    style: 'han',
+    coverImage: 'https://picsum.photos/id/250/750/400',
+    publisher: mockUsers[5],
+    publishTime: '2026-06-07 20:10',
+    tags: ['模特', '深圳', '商拍']
+  },
+  {
+    id: '7',
+    type: 'photographer',
+    title: '南京寻摄影师拍魏晋风',
+    description: '想拍一组魏晋风流主题的汉服创作，地点在瞻园。需要一位擅长古风、会构图的摄影师。服装造型我自理，出片后各用各的。时间定在6月22日，有兴趣的摄影师请联系。',
+    city: '南京',
+    date: '2026-06-22',
+    budget: '互免',
+    style: 'weiJin',
+    coverImage: 'https://picsum.photos/id/1036/750/400',
+    publisher: mockUsers[6],
+    publishTime: '2026-06-13 10:00',
+    tags: ['魏晋', '南京', '创作']
+  },
+  {
+    id: '8',
+    type: 'makeupArtist',
+    title: '西安专业汉服妆造团队',
+    description: '专业汉服妆造团队，承接各类汉服活动妆造、团体妆、新娘妆。团队有8位妆造师，可同时服务50人。大唐不夜城有实体店，欢迎来店体验。活动期间优惠多多。',
+    city: '西安',
+    date: '长期有效',
+    budget: '200-888元',
+    style: 'tang',
+    coverImage: 'https://picsum.photos/id/220/750/400',
+    publisher: mockUsers[7],
+    publishTime: '2026-06-05 15:30',
+    tags: ['妆造', '西安', '团队']
+  }
+];

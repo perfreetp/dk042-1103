@@ -438,3 +438,108 @@
   background: linear-gradient(135deg, $color-primary, $color-primary-light);
   color: #fff;
 }
+
+.cooperationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.cooperationStatus {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.cooperationInfo {
+  background: $color-bg-light;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.cooperationRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-border-light;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.cooperationLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.cooperationValue {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.cooperationActions {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.coopBtn {
+  flex: 1;
+  height: $button-height-md;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-sm;
+  background: $color-bg-light;
+  color: $color-text-secondary;
+
+  &.coopBtnPrimary {
+    background: linear-gradient(135deg, $color-primary, $color-primary-light);
+    color: #fff;
+    font-weight: $font-weight-semibold;
+  }
+
+  &.coopBtnFull {
+    flex: none;
+    width: 100%;
+  }
+}
+
+.completedHint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-sm;
+  width: 100%;
+  height: $button-height-md;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  background: rgba(103, 194, 58, 0.1);
+  border-radius: $radius-button;
+}
+
+.formRow {
+  margin-bottom: $spacing-md;
+}
+
+.formLabel {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+  margin-bottom: $spacing-sm;
+  display: block;
+}
+
+.formInput {
+  width: 100%;
+  height: $button-height-lg;
+  padding: 0 $spacing-md;
+  background: $color-bg-light;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  box-sizing: border-box;
+}

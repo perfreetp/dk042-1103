@@ -13,6 +13,7 @@ import styles from './index.module.scss';
 import { useAppStore } from '@/store';
 
 const MY_AVATAR = 'https://picsum.photos/id/1005/200/200';
+const CURRENT_USER_ID = 'me';
 
 const ChatPage: React.FC = () => {
   const router = useRouter();
@@ -29,6 +30,7 @@ const ChatPage: React.FC = () => {
   const unblockUser = useAppStore((s) => s.unblockUser);
   const reportUser = useAppStore((s) => s.reportUser);
   const addReviewForUser = useAppStore((s) => s.addReviewForUser);
+  const getCooperationByShootingAndUser = useAppStore((s) => s.getCooperationByShootingAndUser);
 
   const [input, setInput] = useState('');
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -36,8 +38,15 @@ const ChatPage: React.FC = () => {
   const [reviewContent, setReviewContent] = useState('');
   const scrollRef = useRef<any>(null);
 
+  const cooperation = shootingId ? getCooperationByShootingAndUser(shootingId, CURRENT_USER_ID) : undefined;
+  const isRequester = cooperation?.requesterId === CURRENT_USER_ID;
+  const hasReviewed = cooperation
+    ? isRequester
+      ? cooperation.requesterReviewed
+      : cooperation.accepterReviewed
+    : false;
   const canSend = input.trim().length > 0 && !isBlocked;
-  const showReviewBtn = shootingId && messages.length > 0 && !isBlocked;
+  const showReviewBtn = cooperation?.status === 'completed' && !hasReviewed && !isBlocked;
 
   const handleSend = () => {
     if (!canSend) return;
@@ -54,7 +63,8 @@ const ChatPage: React.FC = () => {
       rating: reviewRating,
       content: reviewContent,
       shootingId: shootingId,
-      shootingTitle: shooting?.title
+      shootingTitle: shooting?.title,
+      cooperationId: cooperation?.id
     });
     showToast({ title: '评价成功', icon: 'success' });
     setShowReviewModal(false);

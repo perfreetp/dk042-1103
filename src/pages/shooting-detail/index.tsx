@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, Image, Textarea } from '@tarojs/components';
+import { View, Text, Image, Textarea, Input } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
 import { useAppStore } from '@/store';
 import {
   SHOOTING_TYPE_MAP,
-  DYNASTY_MAP
+  DYNASTY_MAP,
+  COOPERATION_STATUS_MAP
 } from '@/types';
+
+const CURRENT_USER_ID = 'me';
 
 const TYPE_ICONS: Record<string, string> = {
   photographer: '📷',
@@ -30,10 +33,18 @@ const ShootingDetailPage: React.FC = () => {
   const markContacted = useAppStore((s) => s.markShootingContacted);
   const addReviewForUser = useAppStore((s) => s.addReviewForUser);
   const isUserBlocked = useAppStore((s) => s.isUserBlocked);
+  const getCooperationByShootingAndUser = useAppStore((s) => s.getCooperationByShootingAndUser);
+  const createCooperation = useAppStore((s) => s.createCooperation);
+  const updateCooperationStatus = useAppStore((s) => s.updateCooperationStatus);
 
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewRating, setReviewRating] = useState(5);
   const [reviewContent, setReviewContent] = useState('');
+  const [showCooperationModal, setShowCooperationModal] = useState(false);
+  const [coopDate, setCoopDate] = useState('');
+  const [coopTime, setCoopTime] = useState('');
+  const [coopLocation, setCoopLocation] = useState('');
+  const [coopBudget, setCoopBudget] = useState('');
 
   if (!shooting) {
     return (
@@ -45,8 +56,18 @@ const ShootingDetailPage: React.FC = () => {
     );
   }
 
+  const cooperation = getCooperationByShootingAndUser(shootingId, CURRENT_USER_ID);
   const isBlocked = isUserBlocked(shooting.publisher.id);
   const typeConfig = TYPE_COLORS[shooting.type];
+  const isRequester = cooperation?.requesterId === CURRENT_USER_ID;
+  const cooperationStatus = cooperation?.status;
+  const hasReviewed = cooperation
+    ? isRequester
+      ? cooperation.requesterReviewed
+      : cooperation.accepterReviewed
+    : false;
+  const canReview = cooperationStatus === 'completed' && !hasReviewed;
+  const showReviewBtn = canReview;
 
   const handleFavorite = () => {
     const res = toggleFavorite(shooting.id);
@@ -76,12 +97,42 @@ const ShootingDetailPage: React.FC = () => {
       rating: reviewRating,
       content: reviewContent,
       shootingId: shooting.id,
-      shootingTitle: shooting.title
+      shootingTitle: shooting.title,
+      cooperationId: cooperation?.id
     });
     Taro.showToast({ title: '评价成功', icon: 'success' });
     setShowReviewModal(false);
     setReviewRating(5);
     setReviewContent('');
+  };
+
+  const handleOpenCooperationModal = () => {
+    setCoopDate(shooting.date);
+    setCoopTime('');
+    setCoopLocation(shooting.city);
+    setCoopBudget(shooting.budget);
+    setShowCooperationModal(true);
+  };
+
+  const handleCreateCooperation = () => {
+    if (!coopDate.trim() || !coopTime.trim() || !coopLocation.trim() || !coopBudget.trim()) {
+      Taro.showToast({ title: '请填写完整信息', icon: 'none' });
+      return;
+    }
+    createCooperation({
+      shootingId: shooting.id,
+      shootingTitle: shooting.title,
+      accepterId: shooting.publisher.id,
+      accepterName: shooting.publisher.nickname,
+      accepterAvatar: shooting.publisher.avatar,
+      role: shooting.type,
+      date: coopDate,
+      time: coopTime,
+      location: coopLocation,
+      budget: coopBudget
+    });
+    Taro.showToast({ title: '合作单已发起', icon: 'success' });
+    setShowCooperationModal(false);
   };
 
   const averageRating = shooting.publisher.reviews.length > 0
@@ -150,6 +201,105 @@ const ShootingDetailPage: React.FC = () => {
           <Text className={styles.description}>{shooting.description}</Text>
         </View>
 
+        {cooperation && (
+          <View className={styles.infoCard}>
+            <View className={styles.cooperationHeader}>
+              <Text className={styles.sectionTitle}>合作单</Text>
+              <View
+                className={styles.cooperationStatus}
+                style={{ color: COOPERATION_STATUS_MAP[cooperation.status].color }}
+              >
+                {COOPERATION_STATUS_MAP[cooperation.status].label}
+              </View>
+            </View>
+            <View className={styles.cooperationInfo}>
+              <View className={styles.cooperationRow}>
+                <Text className={styles.cooperationLabel}>角色</Text>
+                <Text className={styles.cooperationValue}>{SHOOTING_TYPE_MAP[cooperation.role]}</Text>
+              </View>
+              <View className={styles.cooperationRow}>
+                <Text className={styles.cooperationLabel}>日期</Text>
+                <Text className={styles.cooperationValue}>{cooperation.date}</Text>
+              </View>
+              <View className={styles.cooperationRow}>
+                <Text className={styles.cooperationLabel}>时间</Text>
+                <Text className={styles.cooperationValue}>{cooperation.time}</Text>
+              </View>
+              <View className={styles.cooperationRow}>
+                <Text className={styles.cooperationLabel}>地点</Text>
+                <Text className={styles.cooperationValue}>{cooperation.location}</Text>
+              </View>
+              <View className={styles.cooperationRow}>
+                <Text className={styles.cooperationLabel}>预算</Text>
+                <Text className={styles.cooperationValue}>{cooperation.budget}</Text>
+              </View>
+            </View>
+            <View className={styles.cooperationActions}>
+              {cooperation.status === 'pending' && (
+                <>
+                  <View
+                    className={styles.coopBtn}
+                    onClick={() => {
+                      updateCooperationStatus(cooperation.id, 'cancelled');
+                      Taro.showToast({ title: '已取消', icon: 'success' });
+                    }}
+                  >
+                    取消合作
+                  </View>
+                  <View
+                    className={classnames(styles.coopBtn, styles.coopBtnPrimary)}
+                    onClick={() => {
+                      updateCooperationStatus(cooperation.id, 'confirmed');
+                      Taro.showToast({ title: '已确认合作', icon: 'success' });
+                    }}
+                  >
+                    确认合作
+                  </View>
+                </>
+              )}
+              {cooperation.status === 'confirmed' && (
+                <>
+                  <View
+                    className={styles.coopBtn}
+                    onClick={() => {
+                      updateCooperationStatus(cooperation.id, 'cancelled');
+                      Taro.showToast({ title: '已取消', icon: 'success' });
+                    }}
+                  >
+                    取消合作
+                  </View>
+                  <View
+                    className={classnames(styles.coopBtn, styles.coopBtnPrimary)}
+                    onClick={() => {
+                      updateCooperationStatus(cooperation.id, 'inProgress');
+                      Taro.showToast({ title: '合作已开始', icon: 'success' });
+                    }}
+                  >
+                    开始合作
+                  </View>
+                </>
+              )}
+              {cooperation.status === 'inProgress' && (
+                <View
+                  className={classnames(styles.coopBtn, styles.coopBtnPrimary, styles.coopBtnFull)}
+                  onClick={() => {
+                    updateCooperationStatus(cooperation.id, 'completed');
+                    Taro.showToast({ title: '合作已完成', icon: 'success' });
+                  }}
+                >
+                  完成合作
+                </View>
+              )}
+              {cooperation.status === 'completed' && (
+                <View className={styles.completedHint}>
+                  <Text>✅ 本次约拍合作已完成</Text>
+                  {hasReviewed && <Text style={{ color: '#999', fontSize: 24 }}>（您已评价）</Text>}
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
         <View className={styles.infoCard}>
           <Text className={styles.sectionTitle}>发布者</Text>
           <View
@@ -202,19 +352,102 @@ const ShootingDetailPage: React.FC = () => {
       </View>
 
       <View className={styles.bottomBar}>
-        {shooting.isContacted && !isBlocked && (
+        {showReviewBtn && !isBlocked && (
           <View className={styles.btnOutline} onClick={() => setShowReviewModal(true)}>
-            评价TA
+            ⭐ 评价TA
           </View>
         )}
         {isBlocked ? (
           <View className={styles.btnDisabled}>已拉黑</View>
+        ) : cooperation ? (
+          <>
+            <View className={styles.btnOutline} onClick={handleContact}>
+              💬 私信
+            </View>
+            {cooperation.status === 'pending' || cooperation.status === 'confirmed' || cooperation.status === 'inProgress' ? (
+              <View className={styles.btnDisabled}>
+                合作进行中
+              </View>
+            ) : cooperation.status === 'completed' && hasReviewed ? (
+              <View className={styles.btnDisabled}>
+                已评价
+              </View>
+            ) : (
+              <View className={styles.btnPrimary} onClick={() => setShowReviewModal(true)}>
+                ⭐ 评价TA
+              </View>
+            )}
+          </>
+        ) : shooting.isContacted ? (
+          <>
+            <View className={styles.btnOutline} onClick={handleOpenCooperationModal}>
+              🤝 发起合作
+            </View>
+            <View className={styles.btnPrimary} onClick={handleContact}>
+              💬 私信
+            </View>
+          </>
         ) : (
           <View className={styles.btnPrimary} onClick={handleContact}>
             💬 私信联系
           </View>
         )}
       </View>
+
+      {showCooperationModal && (
+        <View className={styles.modalOverlay} onClick={() => setShowCooperationModal(false)}>
+          <View className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <Text className={styles.modalTitle}>发起合作单</Text>
+            <Text className={styles.modalSubtitle}>请确认本次约拍合作的详细信息</Text>
+
+            <View className={styles.formRow}>
+              <Text className={styles.formLabel}>合作日期</Text>
+              <Input
+                className={styles.formInput}
+                placeholder="如：2026-06-15"
+                value={coopDate}
+                onInput={(e) => setCoopDate(e.detail.value)}
+              />
+            </View>
+            <View className={styles.formRow}>
+              <Text className={styles.formLabel}>集合时间</Text>
+              <Input
+                className={styles.formInput}
+                placeholder="如：09:00-12:00"
+                value={coopTime}
+                onInput={(e) => setCoopTime(e.detail.value)}
+              />
+            </View>
+            <View className={styles.formRow}>
+              <Text className={styles.formLabel}>集合地点</Text>
+              <Input
+                className={styles.formInput}
+                placeholder="请输入详细地址"
+                value={coopLocation}
+                onInput={(e) => setCoopLocation(e.detail.value)}
+              />
+            </View>
+            <View className={styles.formRow}>
+              <Text className={styles.formLabel}>合作预算</Text>
+              <Input
+                className={styles.formInput}
+                placeholder="如：¥300/人"
+                value={coopBudget}
+                onInput={(e) => setCoopBudget(e.detail.value)}
+              />
+            </View>
+
+            <View className={styles.modalActions}>
+              <View className={styles.modalBtnCancel} onClick={() => setShowCooperationModal(false)}>
+                取消
+              </View>
+              <View className={styles.modalBtnConfirm} onClick={handleCreateCooperation}>
+                发起合作
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
 
       {showReviewModal && (
         <View className={styles.modalOverlay} onClick={() => setShowReviewModal(false)}>

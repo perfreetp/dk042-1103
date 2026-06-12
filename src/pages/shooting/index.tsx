@@ -10,12 +10,15 @@ import type { ShootingType, DynastyStyle } from '@/types';
 import { SHOOTING_TYPE_MAP, DYNASTY_MAP } from '@/types';
 
 const ShootingPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<ShootingType | 'all'>('all');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'favorited' | 'contacted'>('all');
-  const [selectedStyle, setSelectedStyle] = useState<DynastyStyle | ''>('');
+  const shootings = useAppStore((s) => s.shootings);
+  const shootingFilter = useAppStore((s) => s.shootingFilter);
+  const setShootingFilter = useAppStore((s) => s.setShootingFilter);
+
   const [selectedCity, setSelectedCity] = useState('');
 
-  const shootings = useAppStore((s) => s.shootings);
+  const activeTab = shootingFilter.typeTab;
+  const filterStatus = shootingFilter.statusTab;
+  const selectedStyle = shootingFilter.styleTab as DynastyStyle | '';
 
   const filteredShootings = useMemo(() => {
     let result = [...shootings];
@@ -45,7 +48,7 @@ const ShootingPage: React.FC = () => {
 
   const handleTabChange = (tab: ShootingType | 'all') => {
     console.log('[ShootingPage] 切换标签:', tab);
-    setActiveTab(tab);
+    setShootingFilter({ typeTab: tab });
   };
 
   const tabs = [
@@ -101,7 +104,7 @@ const ShootingPage: React.FC = () => {
                 styles.statusTab,
                 filterStatus === tab.key && styles.statusTabActive
               )}
-              onClick={() => setFilterStatus(tab.key as 'all' | 'favorited' | 'contacted')}
+              onClick={() => setShootingFilter({ statusTab: tab.key as 'all' | 'favorited' | 'contacted' })}
             >
               {tab.label}
             </View>
@@ -120,7 +123,7 @@ const ShootingPage: React.FC = () => {
                 style={{ display: 'inline-block', marginRight: 16 }}
                 onClick={() => {
                   console.log('[ShootingPage] 选择风格:', style.key);
-                  setSelectedStyle(style.key as DynastyStyle | '');
+                  setShootingFilter({ styleTab: (style.key || 'all') as DynastyStyle | 'all' });
                 }}
               >
                 {style.label}

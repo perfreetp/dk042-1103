@@ -455,3 +455,121 @@
   font-size: $font-size-md;
   color: $color-text-tertiary;
 }
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $page-padding;
+}
+
+.modal {
+  width: 100%;
+  background: #fff;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+}
+
+.modalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  text-align: center;
+  margin-bottom: $spacing-xs;
+}
+
+.modalSubtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-align: center;
+  margin-bottom: $spacing-xl;
+}
+
+.codeDisplay {
+  background: linear-gradient(135deg, $color-primary, $color-primary-light);
+  border-radius: $radius-lg;
+  padding: $spacing-xl * 1.5;
+  margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.codeText {
+  font-size: 72rpx;
+  font-weight: $font-weight-bold;
+  color: #fff;
+  letter-spacing: 20rpx;
+}
+
+.codeInfo {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  text-align: center;
+  margin-bottom: $spacing-sm;
+}
+
+.emptyCode {
+  padding: $spacing-xl * 2;
+  background: $color-bg-light;
+  border-radius: $radius-md;
+  margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.emptyCodeText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}
+
+.codeInput {
+  width: 100%;
+  height: 96rpx;
+  padding: 0 $spacing-lg;
+  background: $color-bg-light;
+  border-radius: $radius-md;
+  font-size: 40rpx;
+  text-align: center;
+  letter-spacing: 10rpx;
+  margin-bottom: $spacing-xl;
+  box-sizing: border-box;
+}
+
+.modalActions {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.modalBtnCancel {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  background: $color-bg-light;
+  color: $color-text-secondary;
+}
+
+.modalBtnConfirm {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  background: linear-gradient(135deg, $color-primary, $color-primary-light);
+  color: #fff;
+}

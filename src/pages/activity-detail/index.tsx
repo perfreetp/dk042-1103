@@ -12,6 +12,8 @@ import {
   ActivityDynamicType
 } from '@/types';
 
+const CURRENT_USER_ID = 'me';
+
 const ActivityDetailPage: React.FC = () => {
   const router = useRouter();
   const activityId = router.params.id || '1';
@@ -20,18 +22,24 @@ const ActivityDetailPage: React.FC = () => {
   const registration = useAppStore((s) => s.getRegistrationByActivityId(activityId));
   const photos = useAppStore((s) => s.getPhotosByActivityId(activityId));
   const dynamics = useAppStore((s) => s.getDynamicsByActivityId(activityId));
+  const checkInCode = useAppStore((s) => s.getCheckInCodeByActivityId(activityId));
+  const isActivityOrganizer = useAppStore((s) => s.isActivityOrganizer);
   const registerActivity = useAppStore((s) => s.registerActivity);
   const waitlistActivity = useAppStore((s) => s.waitlistActivity);
   const cancelRegistration = useAppStore((s) => s.cancelRegistration);
-  const checkInActivity = useAppStore((s) => s.checkInActivity);
   const addActivityDynamic = useAppStore((s) => s.addActivityDynamic);
+  const generateCheckInCode = useAppStore((s) => s.generateCheckInCode);
+  const verifyCheckInCode = useAppStore((s) => s.verifyCheckInCode);
 
   const [showPublishDynamic, setShowPublishDynamic] = useState(false);
   const [newDynamicType, setNewDynamicType] = useState<ActivityDynamicType>('notice');
   const [newDynamicTitle, setNewDynamicTitle] = useState('');
   const [newDynamicContent, setNewDynamicContent] = useState('');
+  const [showCheckInCodeModal, setShowCheckInCodeModal] = useState(false);
+  const [showCheckInInput, setShowCheckInInput] = useState(false);
+  const [inputCode, setInputCode] = useState('');
 
-  const isOrganizer = registration?.status === 'checkedIn' || activityId === '1';
+  const isOrganizer = isActivityOrganizer(activityId, CURRENT_USER_ID);
 
   const peoplePercent = useMemo(() => {
     if (!activity) return 0;
@@ -66,14 +74,26 @@ const ActivityDetailPage: React.FC = () => {
     Taro.showToast({ title: res.message, icon: res.success ? 'success' : 'none' });
   };
 
-  const handleCheckIn = () => {
-    if (!registration) return;
-    const res = checkInActivity(registration.id);
-    Taro.showToast({ title: res.message, icon: res.success ? 'success' : 'none' });
-  };
-
   const handleGoAlbum = () => {
     Taro.navigateTo({ url: `/pages/photo-upload/index?id=${activityId}` });
+  };
+
+  const handleGenerateCode = () => {
+    generateCheckInCode(activityId);
+    Taro.showToast({ title: '签到码已生成', icon: 'success' });
+  };
+
+  const handleSubmitCode = () => {
+    if (!inputCode.trim()) {
+      Taro.showToast({ title: '请输入签到码', icon: 'none' });
+      return;
+    }
+    const res = verifyCheckInCode(activityId, inputCode.trim());
+    Taro.showToast({ title: res.message, icon: res.success ? 'success' : 'none' });
+    if (res.success) {
+      setShowCheckInInput(false);
+      setInputCode('');
+    }
   };
 
   const handlePublishDynamic = () => {
@@ -315,6 +335,14 @@ const ActivityDetailPage: React.FC = () => {
       </View>
 
       <View className={styles.bottomBar}>
+        {isOrganizer && (
+          <View
+            className={classnames(styles.btn, styles.btnOutline)}
+            onClick={() => setShowCheckInCodeModal(true)}
+          >
+            🔑 签到码
+          </View>
+        )}
         {photos.length > 0 && (
           <View className={styles.btnGhost} onClick={handleGoAlbum}>
             📷 相册
@@ -346,8 +374,11 @@ const ActivityDetailPage: React.FC = () => {
                 <View className={classnames(styles.btn, styles.btnOutline)} onClick={handleCancel}>
                   取消报名
                 </View>
-                <View className={classnames(styles.btn, styles.btnPrimary)} onClick={handleCheckIn}>
-                  活动签到
+                <View
+                  className={classnames(styles.btn, styles.btnPrimary)}
+                  onClick={() => setShowCheckInInput(true)}
+                >
+                  🎫 输入签到码
                 </View>
               </>
             )}
@@ -384,6 +415,69 @@ const ActivityDetailPage: React.FC = () => {
           </>
         )}
       </View>
+
+      {showCheckInCodeModal && (
+        <View className={styles.modalOverlay} onClick={() => setShowCheckInCodeModal(false)}>
+          <View className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <Text className={styles.modalTitle}>活动签到码</Text>
+            <Text className={styles.modalSubtitle}>展示给报名用户，用于现场签到验证</Text>
+
+            {checkInCode ? (
+              <>
+                <View className={styles.codeDisplay}>
+                  <Text className={styles.codeText}>{checkInCode.code}</Text>
+                </View>
+                <Text className={styles.codeInfo}>
+                  生成时间：{checkInCode.generateTime}
+                </Text>
+                <Text className={styles.codeInfo}>
+                  有效期至：{checkInCode.expireTime}
+                </Text>
+              </>
+            ) : (
+              <View className={styles.emptyCode}>
+                <Text className={styles.emptyCodeText}>尚未生成签到码</Text>
+              </View>
+            )}
+
+            <View className={styles.modalActions}>
+              <View className={styles.modalBtnCancel} onClick={() => setShowCheckInCodeModal(false)}>
+                关闭
+              </View>
+              <View className={styles.modalBtnConfirm} onClick={handleGenerateCode}>
+                {checkInCode ? '重新生成' : '生成签到码'}
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {showCheckInInput && (
+        <View className={styles.modalOverlay} onClick={() => setShowCheckInInput(false)}>
+          <View className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <Text className={styles.modalTitle}>活动签到</Text>
+            <Text className={styles.modalSubtitle}>请输入主办方提供的6位签到码</Text>
+
+            <Input
+              className={styles.codeInput}
+              type="number"
+              placeholder="请输入6位签到码"
+              value={inputCode}
+              onInput={(e) => setInputCode(e.detail.value)}
+              maxlength={6}
+            />
+
+            <View className={styles.modalActions}>
+              <View className={styles.modalBtnCancel} onClick={() => setShowCheckInInput(false)}>
+                取消
+              </View>
+              <View className={styles.modalBtnConfirm} onClick={handleSubmitCode}>
+                确认签到
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
     </View>
   );
 };

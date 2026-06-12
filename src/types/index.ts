@@ -99,20 +99,6 @@ export interface User {
   isVerified: boolean;
 }
 
-// 评价
-export interface Review {
-  id: string;
-  userId: string;
-  userName: string;
-  userAvatar: string;
-  rating: number;
-  content: string;
-  time: string;
-  activityTitle?: string;
-  shootingId?: string;
-  shootingTitle?: string;
-}
-
 // 筛选条件
 export interface FilterOptions {
   city: string;
@@ -169,6 +155,15 @@ export const ACTIVITY_DYNAMIC_TYPE_MAP: Record<ActivityDynamicType, { label: str
   notice: { label: '活动通知', icon: '📢', color: '#96CEB4' }
 };
 
+// 合作单状态映射
+export const COOPERATION_STATUS_MAP: Record<CooperationStatus, { label: string; color: string }> = {
+  pending: { label: '待确认', color: '#E6A23C' },
+  confirmed: { label: '已确认', color: '#409EFF' },
+  inProgress: { label: '进行中', color: '#67C23A' },
+  completed: { label: '已完成', color: '#909399' },
+  cancelled: { label: '已取消', color: '#F56C6C' }
+};
+
 // 聊天消息
 export interface ChatMessage {
   id: string;
@@ -196,5 +191,64 @@ export interface ActivityPhoto {
   uploaderId: string;
   uploaderName: string;
   uploadTime: string;
+}
+
+// 活动签到码
+export interface CheckInCode {
+  id: string;
+  activityId: string;
+  code: string;
+  generateTime: string;
+  expireTime: string;
+  generatedBy: string;
+}
+
+// 合作单状态
+export type CooperationStatus = 'pending' | 'confirmed' | 'inProgress' | 'completed' | 'cancelled';
+
+// 约拍合作单
+export interface ShootingCooperation {
+  id: string;
+  shootingId: string;
+  shootingTitle: string;
+  requesterId: string;
+  requesterName: string;
+  requesterAvatar: string;
+  accepterId: string;
+  accepterName: string;
+  accepterAvatar: string;
+  role: ShootingType;
+  date: string;
+  time: string;
+  location: string;
+  budget: string;
+  status: CooperationStatus;
+  createTime: string;
+  confirmTime?: string;
+  completeTime?: string;
+  requesterReviewed?: boolean;
+  accepterReviewed?: boolean;
+}
+
+// 约拍广场筛选状态
+export interface ShootingFilterState {
+  statusTab: 'all' | 'favorited' | 'contacted';
+  typeTab: ShootingType | 'all';
+  styleTab: DynastyStyle | 'all';
+}
+
+// 评价（扩展合作单关联）
+export interface Review {
+  id: string;
+  userId: string;
+  userName: string;
+  userAvatar: string;
+  rating: number;
+  content: string;
+  time: string;
+  activityTitle?: string;
+  shootingId?: string;
+  shootingTitle?: string;
+  cooperationId?: string;
 }
 

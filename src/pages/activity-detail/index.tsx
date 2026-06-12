@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { View, Text, Image } from '@tarojs/components';
+import React, { useMemo, useState } from 'react';
+import { View, Text, Image, Textarea, Input } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import classnames from 'classnames';
 import styles from './index.module.scss';
@@ -7,7 +7,9 @@ import { useAppStore } from '@/store';
 import {
   ACTIVITY_TYPE_MAP,
   DYNASTY_MAP,
-  REGISTRATION_STATUS_MAP
+  REGISTRATION_STATUS_MAP,
+  ACTIVITY_DYNAMIC_TYPE_MAP,
+  ActivityDynamicType
 } from '@/types';
 
 const ActivityDetailPage: React.FC = () => {
@@ -17,10 +19,19 @@ const ActivityDetailPage: React.FC = () => {
   const activity = useAppStore((s) => s.getActivityById(activityId));
   const registration = useAppStore((s) => s.getRegistrationByActivityId(activityId));
   const photos = useAppStore((s) => s.getPhotosByActivityId(activityId));
+  const dynamics = useAppStore((s) => s.getDynamicsByActivityId(activityId));
   const registerActivity = useAppStore((s) => s.registerActivity);
   const waitlistActivity = useAppStore((s) => s.waitlistActivity);
   const cancelRegistration = useAppStore((s) => s.cancelRegistration);
   const checkInActivity = useAppStore((s) => s.checkInActivity);
+  const addActivityDynamic = useAppStore((s) => s.addActivityDynamic);
+
+  const [showPublishDynamic, setShowPublishDynamic] = useState(false);
+  const [newDynamicType, setNewDynamicType] = useState<ActivityDynamicType>('notice');
+  const [newDynamicTitle, setNewDynamicTitle] = useState('');
+  const [newDynamicContent, setNewDynamicContent] = useState('');
+
+  const isOrganizer = registration?.status === 'checkedIn' || activityId === '1';
 
   const peoplePercent = useMemo(() => {
     if (!activity) return 0;
@@ -63,6 +74,22 @@ const ActivityDetailPage: React.FC = () => {
 
   const handleGoAlbum = () => {
     Taro.navigateTo({ url: `/pages/photo-upload/index?id=${activityId}` });
+  };
+
+  const handlePublishDynamic = () => {
+    if (!newDynamicTitle.trim() || !newDynamicContent.trim()) {
+      Taro.showToast({ title: '请填写标题和内容', icon: 'none' });
+      return;
+    }
+    addActivityDynamic(activityId, {
+      type: newDynamicType,
+      title: newDynamicTitle,
+      content: newDynamicContent
+    });
+    Taro.showToast({ title: '发布成功', icon: 'success' });
+    setNewDynamicTitle('');
+    setNewDynamicContent('');
+    setShowPublishDynamic(false);
   };
 
   const statusBadgeClass = registration
@@ -189,6 +216,102 @@ const ActivityDetailPage: React.FC = () => {
             </View>
           </View>
         )}
+
+        <View className={styles.infoCard}>
+          <View className={styles.dynamicHeader}>
+            <Text className={styles.sectionTitle}>
+              活动动态
+              <Text style={{ fontSize: 24, color: '#999', marginLeft: 8 }}>
+                ({dynamics.length})
+              </Text>
+            </Text>
+            {isOrganizer && (
+              <Text
+                className={styles.publishBtn}
+                onClick={() => setShowPublishDynamic(!showPublishDynamic)}
+              >
+                {showPublishDynamic ? '取消' : '+ 发动态'}
+              </Text>
+            )}
+          </View>
+
+          {showPublishDynamic && (
+            <View className={styles.publishForm}>
+              <View className={styles.typeSelector}>
+                {Object.entries(ACTIVITY_DYNAMIC_TYPE_MAP).map(([key, val]) => (
+                  <View
+                    key={key}
+                    className={classnames(
+                      styles.typeChip,
+                      newDynamicType === key && styles.typeChipActive
+                    )}
+                    style={{ borderColor: newDynamicType === key ? val.color : '#ddd' }}
+                    onClick={() => setNewDynamicType(key as ActivityDynamicType)}
+                  >
+                    <Text style={{ marginRight: 4 }}>{val.icon}</Text>
+                    <Text style={{ color: newDynamicType === key ? val.color : '#666' }}>
+                      {val.label}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+              <Input
+                className={styles.dynamicTitleInput}
+                placeholder="请输入标题"
+                value={newDynamicTitle}
+                onInput={(e) => setNewDynamicTitle(e.detail.value)}
+              />
+              <Textarea
+                className={styles.dynamicContentInput}
+                placeholder="请输入内容..."
+                value={newDynamicContent}
+                onInput={(e) => setNewDynamicContent(e.detail.value)}
+                maxlength={500}
+              />
+              <View className={styles.publishActions}>
+                <Text className={styles.wordCount}>{newDynamicContent.length}/500</Text>
+                <View className={styles.btnPublish} onClick={handlePublishDynamic}>
+                  发布
+                </View>
+              </View>
+            </View>
+          )}
+
+          {dynamics.length > 0 ? (
+            <View className={styles.timeline}>
+              {dynamics.map((dynamic, index) => {
+                const typeConfig = ACTIVITY_DYNAMIC_TYPE_MAP[dynamic.type];
+                return (
+                  <View key={dynamic.id} className={styles.timelineItem}>
+                    <View className={styles.timelineDot} style={{ background: typeConfig.color }}>
+                      {typeConfig.icon}
+                    </View>
+                    <View className={styles.timelineLine} style={{ display: index === dynamics.length - 1 ? 'none' : 'block' }} />
+                    <View className={styles.timelineContent}>
+                      <View className={styles.timelineHeader}>
+                        <Text className={styles.timelineType} style={{ color: typeConfig.color }}>
+                          {typeConfig.label}
+                        </Text>
+                        <Text className={styles.timelineTime}>{dynamic.publishTime}</Text>
+                      </View>
+                      <Text className={styles.timelineTitle}>{dynamic.title}</Text>
+                      <Text className={styles.timelineDesc}>{dynamic.content}</Text>
+                      <View className={styles.timelinePublisher}>
+                        <Image className={styles.publisherAvatar} src={dynamic.publisherAvatar} mode="aspectFill" />
+                        <Text className={styles.publisherName}>{dynamic.publisherName}</Text>
+                      </View>
+                    </View>
+                  </View>
+                );
+              })}
+            </View>
+          ) : (
+            <View className={styles.emptyState}>
+              <Text className={styles.emptyIcon}>📢</Text>
+              <Text className={styles.emptyText}>暂无活动动态</Text>
+            </View>
+          )}
+        </View>
       </View>
 
       <View className={styles.bottomBar}>

@@ -60,14 +60,10 @@ const CalendarPage: React.FC = () => {
     }
     if (filters.date) {
       result = result.filter(a => isDateInRange(a.date, filters.date));
-    } else {
-      result = result.filter(
-        a => dayjs(a.date).format('YYYY-MM-DD') === selectedDate
-      );
     }
 
     return result;
-  }, [activities, filters, selectedDate]);
+  }, [activities, filters]);
 
   const handlePrevMonth = () => {
     console.log('[CalendarPage] 上月');
@@ -83,6 +79,9 @@ const CalendarPage: React.FC = () => {
     const dateStr = date.format('YYYY-MM-DD');
     console.log('[CalendarPage] 选择日期:', dateStr);
     setSelectedDate(dateStr);
+    if (dateStr !== selectedDate) {
+      setFilters({ ...filters, date: '' });
+    }
   };
 
   return (
@@ -138,7 +137,9 @@ const CalendarPage: React.FC = () => {
         <View className={styles.sectionHeader}>
           <Text className={styles.sectionTitle}>
             <Text className={styles.dateText}>
-              {dayjs(selectedDate).format('MM月DD日')}
+              {filters.date
+                ? (filters.date === '本周' ? '本周' : filters.date)
+                : '全部'}
             </Text>
             {' '}活动
           </Text>

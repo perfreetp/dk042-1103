@@ -1,15 +1,20 @@
 import React from 'react';
 import { View, Text, Image, Button } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import classnames from 'classnames';
 import styles from './index.module.scss';
 import type { Shooting } from '@/types';
 import { SHOOTING_TYPE_MAP, DYNASTY_MAP } from '@/types';
+import { useAppStore } from '@/store';
 
 interface ShootingCardProps {
   shooting: Shooting;
 }
 
 const ShootingCard: React.FC<ShootingCardProps> = ({ shooting }) => {
+  const toggleFavorite = useAppStore((s) => s.toggleFavoriteShooting);
+  const markContacted = useAppStore((s) => s.markShootingContacted);
+
   const handleClick = () => {
     console.log('[ShootingCard] 点击约拍:', shooting.id, shooting.title);
     Taro.navigateTo({
@@ -17,11 +22,21 @@ const ShootingCard: React.FC<ShootingCardProps> = ({ shooting }) => {
     });
   };
 
-  const handleContact = (e: React.MouseEvent) => {
+  const handleFavorite = (e: any) => {
+    e.stopPropagation();
+    const res = toggleFavorite(shooting.id);
+    Taro.showToast({
+      title: res.isFavorited ? '已收藏' : '已取消收藏',
+      icon: 'none'
+    });
+  };
+
+  const handleContact = (e: any) => {
     e.stopPropagation();
     console.log('[ShootingCard] 联系发布者:', shooting.publisher.id);
+    markContacted(shooting.id);
     Taro.navigateTo({
-      url: `/pages/chat/index?userId=${shooting.publisher.id}`
+      url: `/pages/chat/index?id=${shooting.publisher.id}&shootingId=${shooting.id}`
     });
   };
 
@@ -34,13 +49,26 @@ const ShootingCard: React.FC<ShootingCardProps> = ({ shooting }) => {
   return (
     <View className={styles.card} onClick={handleClick}>
       <View className={styles.header}>
-        <View
-          className={styles.typeBadge}
-          style={{ backgroundColor: typeColors[shooting.type] }}
-        >
-          {SHOOTING_TYPE_MAP[shooting.type]}
+        <View style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <View
+            className={styles.typeBadge}
+            style={{ backgroundColor: typeColors[shooting.type] }}
+          >
+            {SHOOTING_TYPE_MAP[shooting.type]}
+          </View>
+          {shooting.isContacted && (
+            <View className={styles.contactedTag}>已联系</View>
+          )}
         </View>
-        <Text className={styles.time}>{shooting.publishTime}</Text>
+        <View style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <Text
+            className={classnames(styles.favoriteIcon, shooting.isFavorited && styles.favorited)}
+            onClick={handleFavorite}
+          >
+            {shooting.isFavorited ? '❤️' : '🤍'}
+          </Text>
+          <Text className={styles.time}>{shooting.publishTime}</Text>
+        </View>
       </View>
 
       <Text className={styles.title}>{shooting.title}</Text>

@@ -260,3 +260,198 @@
 .statusCheckedIn {
   background: rgba($color-primary, 0.9);
 }
+
+.dynamicHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-lg;
+}
+
+.publishBtn {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  background: rgba($color-primary, 0.1);
+}
+
+.publishForm {
+  background: $color-bg-light;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-lg;
+}
+
+.typeSelector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.typeChip {
+  display: flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-round;
+  border: 2rpx solid $color-border-light;
+  background: #fff;
+  font-size: $font-size-sm;
+}
+
+.typeChipActive {
+  background: rgba($color-primary, 0.08);
+  border-width: 2rpx;
+}
+
+.dynamicTitleInput {
+  width: 100%;
+  height: 72rpx;
+  padding: 0 $spacing-md;
+  background: #fff;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  margin-bottom: $spacing-sm;
+  box-sizing: border-box;
+}
+
+.dynamicContentInput {
+  width: 100%;
+  min-height: 160rpx;
+  padding: $spacing-md;
+  background: #fff;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  box-sizing: border-box;
+}
+
+.publishActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: $spacing-md;
+}
+
+.wordCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.btnPublish {
+  padding: $spacing-sm $spacing-xl;
+  background: linear-gradient(135deg, $color-primary, $color-primary-light);
+  color: #fff;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+}
+
+.timeline {
+  position: relative;
+}
+
+.timelineItem {
+  position: relative;
+  padding-left: 80rpx;
+  padding-bottom: $spacing-xl;
+
+  &:last-child {
+    padding-bottom: 0;
+  }
+}
+
+.timelineDot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  z-index: 2;
+}
+
+.timelineLine {
+  position: absolute;
+  left: 27rpx;
+  top: 60rpx;
+  bottom: 0;
+  width: 2rpx;
+  background: $color-border-light;
+}
+
+.timelineContent {
+  background: $color-bg-light;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.timelineHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+}
+
+.timelineType {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.timelineTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.timelineTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.timelineDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-loose;
+  margin-bottom: $spacing-md;
+}
+
+.timelinePublisher {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.publisherAvatar {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+}
+
+.publisherName {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl * 2;
+}
+
+.emptyIcon {
+  font-size: 80rpx;
+  margin-bottom: $spacing-md;
+  opacity: 0.5;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+  color: $color-text-tertiary;
+}

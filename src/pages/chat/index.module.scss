@@ -204,3 +204,122 @@
   background: $color-bg-light;
   color: $color-text-tertiary;
 }
+
+.reviewBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-md $page-padding;
+  padding-bottom: $spacing-sm;
+  background: #fff;
+  border-top: 1rpx solid $color-border-light;
+}
+
+.reviewHint {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.reviewBtn {
+  padding: $spacing-xs $spacing-md;
+  background: linear-gradient(135deg, $color-secondary, #e6b800);
+  color: #fff;
+  border-radius: $radius-round;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: $page-padding;
+}
+
+.modal {
+  width: 100%;
+  background: #fff;
+  border-radius: $radius-lg;
+  padding: $spacing-xl;
+}
+
+.modalTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  text-align: center;
+  margin-bottom: $spacing-xs;
+}
+
+.modalSubtitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  text-align: center;
+  margin-bottom: $spacing-xl;
+}
+
+.ratingSelector {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-md;
+  margin-bottom: $spacing-xl;
+}
+
+.ratingStar {
+  font-size: 56rpx;
+  opacity: 0.3;
+  transition: all 0.2s;
+
+  &.ratingStarActive {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+.reviewInput {
+  width: 100%;
+  min-height: 200rpx;
+  padding: $spacing-md;
+  background: $color-bg-light;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  margin-bottom: $spacing-xl;
+  box-sizing: border-box;
+}
+
+.modalActions {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.modalBtnCancel {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  background: $color-bg-light;
+  color: $color-text-secondary;
+}
+
+.modalBtnConfirm {
+  flex: 1;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  background: linear-gradient(135deg, $color-primary, $color-primary-light);
+  color: #fff;
+}

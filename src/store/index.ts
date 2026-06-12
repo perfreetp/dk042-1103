@@ -9,7 +9,10 @@ import type {
   DynastyStyle,
   ChatMessage,
   ActivityPhoto,
-  User
+  User,
+  ActivityDynamic,
+  ActivityDynamicType,
+  Review
 } from '@/types';
 import { mockActivities } from '@/data/activities';
 import { mockShootings } from '@/data/shootings';
@@ -26,12 +29,15 @@ interface AppState {
   reports: string[];
   messages: ChatMessage[];
   activityPhotos: ActivityPhoto[];
+  activityDynamics: ActivityDynamic[];
 
   getRegistrationByActivityId: (activityId: string) => Registration | undefined;
   getActivityById: (activityId: string) => Activity | undefined;
   getUserById: (userId: string) => User | undefined;
+  getShootingById: (shootingId: string) => Shooting | undefined;
   getMessagesWithUser: (userId: string) => ChatMessage[];
   getPhotosByActivityId: (activityId: string) => ActivityPhoto[];
+  getDynamicsByActivityId: (activityId: string) => ActivityDynamic[];
   isUserBlocked: (userId: string) => boolean;
   isUserReported: (userId: string) => boolean;
 
@@ -49,13 +55,26 @@ interface AppState {
     budget: string;
     style: DynastyStyle;
   }) => Shooting;
+  toggleFavoriteShooting: (shootingId: string) => { isFavorited: boolean };
+  markShootingContacted: (shootingId: string) => void;
 
-  sendMessage: (receiverId: string, content: string) => ChatMessage;
+  sendMessage: (receiverId: string, content: string, shootingId?: string) => ChatMessage;
   blockUser: (userId: string) => void;
   unblockUser: (userId: string) => void;
   reportUser: (userId: string) => void;
+  addReviewForUser: (targetUserId: string, data: {
+    rating: number;
+    content: string;
+    shootingId?: string;
+    shootingTitle?: string;
+  }) => Review;
 
   addActivityPhoto: (activityId: string, url: string) => ActivityPhoto;
+  addActivityDynamic: (activityId: string, data: {
+    type: ActivityDynamicType;
+    title: string;
+    content: string;
+  }) => ActivityDynamic;
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 10);
@@ -63,7 +82,7 @@ const generateId = () => Math.random().toString(36).substring(2, 10);
 export const useAppStore = create<AppState>((set, get) => ({
   activities: mockActivities,
   registrations: [...mockRegistrations],
-  shootings: [...mockShootings],
+  shootings: [...mockShootings.map((s) => ({ ...s, isFavorited: false, isContacted: false }))],
   users: mockUsers,
   blacklist: [],
   reports: [],
@@ -84,6 +103,38 @@ export const useAppStore = create<AppState>((set, get) => ({
       uploaderId: '2',
       uploaderName: '云想衣裳',
       uploadTime: '2026-06-12 11:15'
+    }
+  ],
+  activityDynamics: [
+    {
+      id: 'd1',
+      activityId: '1',
+      type: 'reminder',
+      title: '集合时间提醒',
+      content: '请大家于明天早上8:30准时在公园南门集合，签到后统一入园。记得穿舒适的鞋子哦~',
+      publisherName: '汉服雅集组委会',
+      publisherAvatar: 'https://picsum.photos/id/1001/100/100',
+      publishTime: '2026-06-12 18:00'
+    },
+    {
+      id: 'd2',
+      activityId: '1',
+      type: 'weather',
+      title: '天气更新',
+      content: '明日晴转多云，气温24-32°C，建议带一把遮阳伞，注意防晒补水。',
+      publisherName: '汉服雅集组委会',
+      publisherAvatar: 'https://picsum.photos/id/1001/100/100',
+      publishTime: '2026-06-12 16:30'
+    },
+    {
+      id: 'd3',
+      activityId: '1',
+      type: 'route',
+      title: '交通路线提示',
+      content: '地铁10号线「牡丹园」站C口出，步行500米即到公园南门。自驾的同袍可停公园西门停车场。',
+      publisherName: '汉服雅集组委会',
+      publisherAvatar: 'https://picsum.photos/id/1001/100/100',
+      publishTime: '2026-06-11 20:00'
     }
   ],
 
@@ -113,6 +164,16 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   getPhotosByActivityId: (activityId) => {
     return get().activityPhotos.filter((p) => p.activityId === activityId);
+  },
+
+  getDynamicsByActivityId: (activityId) => {
+    return get()
+      .activityDynamics.filter((d) => d.activityId === activityId)
+      .sort((a, b) => b.publishTime.localeCompare(a.publishTime));
+  },
+
+  getShootingById: (shootingId) => {
+    return get().shootings.find((s) => s.id === shootingId);
   },
 
   isUserBlocked: (userId) => {
@@ -244,7 +305,32 @@ export const useAppStore = create<AppState>((set, get) => ({
     return newShooting;
   },
 
-  sendMessage: (receiverId, content) => {
+  toggleFavoriteShooting: (shootingId) => {
+    const state = get();
+    const shooting = state.shootings.find((s) => s.id === shootingId);
+    if (!shooting) return { isFavorited: false };
+
+    const newIsFavorited = !shooting.isFavorited;
+    set({
+      shootings: state.shootings.map((s) =>
+        s.id === shootingId ? { ...s, isFavorited: newIsFavorited } : s
+      )
+    });
+    return { isFavorited: newIsFavorited };
+  },
+
+  markShootingContacted: (shootingId) => {
+    const state = get();
+    set({
+      shootings: state.shootings.map((s) =>
+        s.id === shootingId
+          ? { ...s, isContacted: true, contactTime: dayjs().format('YYYY-MM-DD HH:mm') }
+          : s
+      )
+    });
+  },
+
+  sendMessage: (receiverId, content, shootingId) => {
     const state = get();
     const newMsg: ChatMessage = {
       id: generateId(),
@@ -254,6 +340,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       time: dayjs().format('YYYY-MM-DD HH:mm:ss'),
       isRead: false
     };
+
+    if (shootingId) {
+      get().markShootingContacted(shootingId);
+    }
 
     set({ messages: [...state.messages, newMsg] });
     return newMsg;
@@ -278,6 +368,34 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
+  addReviewForUser: (targetUserId, data) => {
+    const state = get();
+    const targetUser = state.users.find((u) => u.id === targetUserId);
+    if (!targetUser) {
+      throw new Error('用户不存在');
+    }
+
+    const newReview: Review = {
+      id: generateId(),
+      userId: CURRENT_USER_ID,
+      userName: '我',
+      userAvatar: 'https://picsum.photos/id/1005/200/200',
+      rating: data.rating,
+      content: data.content,
+      time: dayjs().format('YYYY-MM-DD HH:mm'),
+      shootingId: data.shootingId,
+      shootingTitle: data.shootingTitle
+    };
+
+    set({
+      users: state.users.map((u) =>
+        u.id === targetUserId ? { ...u, reviews: [newReview, ...u.reviews] } : u
+      )
+    });
+
+    return newReview;
+  },
+
   addActivityPhoto: (activityId, url) => {
     const state = get();
     const photo: ActivityPhoto = {
@@ -291,5 +409,27 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     set({ activityPhotos: [...state.activityPhotos, photo] });
     return photo;
+  },
+
+  addActivityDynamic: (activityId, data) => {
+    const state = get();
+    const activity = state.activities.find((a) => a.id === activityId);
+    if (!activity) {
+      throw new Error('活动不存在');
+    }
+
+    const newDynamic: ActivityDynamic = {
+      id: generateId(),
+      activityId,
+      type: data.type,
+      title: data.title,
+      content: data.content,
+      publisherName: activity.organizer,
+      publisherAvatar: activity.organizerAvatar,
+      publishTime: dayjs().format('YYYY-MM-DD HH:mm')
+    };
+
+    set({ activityDynamics: [newDynamic, ...state.activityDynamics] });
+    return newDynamic;
   }
 }));

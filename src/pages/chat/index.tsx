@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Image, Input, ScrollView } from '@tarojs/components';
+import { View, Text, Image, Input, ScrollView, Textarea } from '@tarojs/components';
 import {
   useRouter,
   navigateBack,
@@ -17,8 +17,10 @@ const MY_AVATAR = 'https://picsum.photos/id/1005/200/200';
 const ChatPage: React.FC = () => {
   const router = useRouter();
   const userId = router.params.id || '1';
+  const shootingId = router.params.shootingId || '';
 
   const user = useAppStore((s) => s.getUserById(userId));
+  const shooting = useAppStore((s) => s.getShootingById(shootingId));
   const messages = useAppStore((s) => s.getMessagesWithUser(userId));
   const isBlocked = useAppStore((s) => s.isUserBlocked(userId));
   const isReported = useAppStore((s) => s.isUserReported(userId));
@@ -26,16 +28,38 @@ const ChatPage: React.FC = () => {
   const blockUser = useAppStore((s) => s.blockUser);
   const unblockUser = useAppStore((s) => s.unblockUser);
   const reportUser = useAppStore((s) => s.reportUser);
+  const addReviewForUser = useAppStore((s) => s.addReviewForUser);
 
   const [input, setInput] = useState('');
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewContent, setReviewContent] = useState('');
   const scrollRef = useRef<any>(null);
 
   const canSend = input.trim().length > 0 && !isBlocked;
+  const showReviewBtn = shootingId && messages.length > 0 && !isBlocked;
 
   const handleSend = () => {
     if (!canSend) return;
-    sendMessage(userId, input.trim());
+    sendMessage(userId, input.trim(), shootingId || undefined);
     setInput('');
+  };
+
+  const handleSubmitReview = () => {
+    if (!reviewContent.trim()) {
+      showToast({ title: '请填写评价内容', icon: 'none' });
+      return;
+    }
+    addReviewForUser(userId, {
+      rating: reviewRating,
+      content: reviewContent,
+      shootingId: shootingId,
+      shootingTitle: shooting?.title
+    });
+    showToast({ title: '评价成功', icon: 'success' });
+    setShowReviewModal(false);
+    setReviewRating(5);
+    setReviewContent('');
   };
 
   const handleBack = () => {
@@ -193,6 +217,18 @@ const ChatPage: React.FC = () => {
             })}
           </ScrollView>
 
+          {showReviewBtn && (
+            <View className={styles.reviewBar}>
+              <Text className={styles.reviewHint}>约拍合作完成后，记得给对方一个评价哦~</Text>
+              <View
+                className={styles.reviewBtn}
+                onClick={() => setShowReviewModal(true)}
+              >
+                ⭐ 评价TA
+              </View>
+            </View>
+          )}
+
           <View className={styles.inputBar}>
             <Input
               className={styles.textInput}
@@ -211,6 +247,44 @@ const ChatPage: React.FC = () => {
             </View>
           </View>
         </>
+      )}
+
+      {showReviewModal && (
+        <View className={styles.modalOverlay} onClick={() => setShowReviewModal(false)}>
+          <View className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <Text className={styles.modalTitle}>评价{user?.nickname}</Text>
+            <Text className={styles.modalSubtitle}>请为本次约拍合作打分</Text>
+
+            <View className={styles.ratingSelector}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Text
+                  key={star}
+                  className={classnames(styles.ratingStar, star <= reviewRating && styles.ratingStarActive)}
+                  onClick={() => setReviewRating(star)}
+                >
+                  ⭐
+                </Text>
+              ))}
+            </View>
+
+            <Textarea
+              className={styles.reviewInput}
+              placeholder="请输入评价内容..."
+              value={reviewContent}
+              onInput={(e) => setReviewContent(e.detail.value)}
+              maxlength={500}
+            />
+
+            <View className={styles.modalActions}>
+              <View className={styles.modalBtnCancel} onClick={() => setShowReviewModal(false)}>
+                取消
+              </View>
+              <View className={styles.modalBtnConfirm} onClick={handleSubmitReview}>
+                提交评价
+              </View>
+            </View>
+          </View>
+        </View>
       )}
     </View>
   );

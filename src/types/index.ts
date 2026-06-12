@@ -10,6 +10,21 @@ export type RegistrationStatus = 'pending' | 'confirmed' | 'waitlist' | 'cancell
 // 约拍类型
 export type ShootingType = 'photographer' | 'makeupArtist' | 'model';
 
+// 活动动态类型
+export type ActivityDynamicType = 'reminder' | 'weather' | 'route' | 'notice';
+
+// 活动动态
+export interface ActivityDynamic {
+  id: string;
+  activityId: string;
+  type: ActivityDynamicType;
+  title: string;
+  content: string;
+  publisherName: string;
+  publisherAvatar: string;
+  publishTime: string;
+}
+
 // 活动信息
 export interface Activity {
   id: string;
@@ -59,6 +74,9 @@ export interface Shooting {
   publisher: User;
   publishTime: string;
   tags: string[];
+  isFavorited?: boolean;
+  isContacted?: boolean;
+  contactTime?: string;
 }
 
 // 用户信息
@@ -91,6 +109,8 @@ export interface Review {
   content: string;
   time: string;
   activityTitle?: string;
+  shootingId?: string;
+  shootingTitle?: string;
 }
 
 // 筛选条件
@@ -139,6 +159,14 @@ export const REGISTRATION_STATUS_MAP: Record<RegistrationStatus, string> = {
   waitlist: '候补中',
   cancelled: '已取消',
   checkedIn: '已签到'
+};
+
+// 活动动态类型映射
+export const ACTIVITY_DYNAMIC_TYPE_MAP: Record<ActivityDynamicType, { label: string; icon: string; color: string }> = {
+  reminder: { label: '集合提醒', icon: '⏰', color: '#FF6B6B' },
+  weather: { label: '天气提醒', icon: '☀️', color: '#4ECDC4' },
+  route: { label: '路线提示', icon: '🗺️', color: '#45B7D1' },
+  notice: { label: '活动通知', icon: '📢', color: '#96CEB4' }
 };
 
 // 聊天消息

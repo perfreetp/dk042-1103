@@ -11,6 +11,7 @@ import { SHOOTING_TYPE_MAP, DYNASTY_MAP } from '@/types';
 
 const ShootingPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ShootingType | 'all'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'favorited' | 'contacted'>('all');
   const [selectedStyle, setSelectedStyle] = useState<DynastyStyle | ''>('');
   const [selectedCity, setSelectedCity] = useState('');
 
@@ -22,6 +23,11 @@ const ShootingPage: React.FC = () => {
     if (activeTab !== 'all') {
       result = result.filter(s => s.type === activeTab);
     }
+    if (filterStatus === 'favorited') {
+      result = result.filter(s => s.isFavorited);
+    } else if (filterStatus === 'contacted') {
+      result = result.filter(s => s.isContacted);
+    }
     if (selectedStyle) {
       result = result.filter(s => s.style === selectedStyle);
     }
@@ -30,7 +36,7 @@ const ShootingPage: React.FC = () => {
     }
 
     return result;
-  }, [shootings, activeTab, selectedStyle, selectedCity]);
+  }, [shootings, activeTab, filterStatus, selectedStyle, selectedCity]);
 
   const handlePublish = () => {
     console.log('[ShootingPage] 发布需求');
@@ -81,6 +87,25 @@ const ShootingPage: React.FC = () => {
         <View className={styles.sectionHeader}>
           <Text className={styles.sectionTitle}>需求列表</Text>
           <Text style={{ fontSize: 24, color: '#999' }}>共 {filteredShootings.length} 条</Text>
+        </View>
+
+        <View className={styles.statusTabs}>
+          {[
+            { key: 'all', label: '全部' },
+            { key: 'favorited', label: '❤️ 已收藏' },
+            { key: 'contacted', label: '💬 已联系' }
+          ].map((tab) => (
+            <View
+              key={tab.key}
+              className={classnames(
+                styles.statusTab,
+                filterStatus === tab.key && styles.statusTabActive
+              )}
+              onClick={() => setFilterStatus(tab.key as 'all' | 'favorited' | 'contacted')}
+            >
+              {tab.label}
+            </View>
+          ))}
         </View>
 
         <View className={styles.filterRow}>

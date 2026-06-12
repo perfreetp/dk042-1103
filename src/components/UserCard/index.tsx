@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 import type { User } from '@/types';
 import { DYNASTY_MAP } from '@/types';
+import { useAppStore } from '@/store';
 
 interface UserCardProps {
   user: User;
@@ -12,6 +13,8 @@ interface UserCardProps {
 }
 
 const UserCard: React.FC<UserCardProps> = ({ user, showActions = true }) => {
+  const isBlocked = useAppStore((s) => s.isUserBlocked(user.id));
+
   const handleClick = () => {
     console.log('[UserCard] 点击用户:', user.id, user.nickname);
     Taro.navigateTo({
@@ -19,11 +22,15 @@ const UserCard: React.FC<UserCardProps> = ({ user, showActions = true }) => {
     });
   };
 
-  const handleChat = (e: React.MouseEvent) => {
+  const handleChat = (e: any) => {
     e.stopPropagation();
+    if (isBlocked) {
+      Taro.showToast({ title: '该用户已被拉黑', icon: 'none' });
+      return;
+    }
     console.log('[UserCard] 发起私信:', user.id);
     Taro.navigateTo({
-      url: `/pages/chat/index?userId=${user.id}`
+      url: `/pages/chat/index?id=${user.id}`
     });
   };
 

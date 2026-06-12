@@ -5,18 +5,21 @@ import styles from './index.module.scss';
 import ActivityCard from '@/components/ActivityCard';
 import FilterBar from '@/components/FilterBar';
 import SafetyReminder from '@/components/SafetyReminder';
-import { mockActivities } from '@/data/activities';
+import { useAppStore } from '@/store';
+import { isDateInRange } from '@/utils/dateFilter';
 import type { FilterOptions } from '@/types';
 import { ACTIVITY_TYPE_MAP, DYNASTY_MAP } from '@/types';
 
 const HomePage: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [filters, setFilters] = useState<FilterOptions>({
-    city: '北京',
+    city: '',
     date: '',
     dynasty: '',
     type: ''
   });
+
+  const activities = useAppStore((s) => s.activities);
 
   const banners = useMemo(() => [
     {
@@ -48,7 +51,7 @@ const HomePage: React.FC = () => {
   ], []);
 
   const filteredActivities = useMemo(() => {
-    let result = [...mockActivities];
+    let result = [...activities];
 
     if (filters.city) {
       result = result.filter(a => a.city === filters.city);
@@ -59,6 +62,9 @@ const HomePage: React.FC = () => {
     if (filters.type) {
       result = result.filter(a => a.type === filters.type);
     }
+    if (filters.date) {
+      result = result.filter(a => isDateInRange(a.date, filters.date));
+    }
     if (searchText) {
       result = result.filter(a =>
         a.title.includes(searchText) ||
@@ -67,7 +73,7 @@ const HomePage: React.FC = () => {
     }
 
     return result.slice(0, 5);
-  }, [filters, searchText]);
+  }, [activities, filters, searchText]);
 
   const handleCategoryClick = (category: { type?: string; dynasty?: string }) => {
     console.log('[HomePage] 点击分类:', category);

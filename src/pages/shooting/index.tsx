@@ -5,7 +5,7 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 import ShootingCard from '@/components/ShootingCard';
 import SafetyReminder from '@/components/SafetyReminder';
-import { mockShootings } from '@/data/shootings';
+import { useAppStore } from '@/store';
 import type { ShootingType, DynastyStyle } from '@/types';
 import { SHOOTING_TYPE_MAP, DYNASTY_MAP } from '@/types';
 
@@ -14,8 +14,10 @@ const ShootingPage: React.FC = () => {
   const [selectedStyle, setSelectedStyle] = useState<DynastyStyle | ''>('');
   const [selectedCity, setSelectedCity] = useState('');
 
+  const shootings = useAppStore((s) => s.shootings);
+
   const filteredShootings = useMemo(() => {
-    let result = [...mockShootings];
+    let result = [...shootings];
 
     if (activeTab !== 'all') {
       result = result.filter(s => s.type === activeTab);
@@ -28,7 +30,7 @@ const ShootingPage: React.FC = () => {
     }
 
     return result;
-  }, [activeTab, selectedStyle, selectedCity]);
+  }, [shootings, activeTab, selectedStyle, selectedCity]);
 
   const handlePublish = () => {
     console.log('[ShootingPage] 发布需求');

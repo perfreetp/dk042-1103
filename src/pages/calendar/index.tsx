@@ -4,18 +4,21 @@ import dayjs from 'dayjs';
 import styles from './index.module.scss';
 import ActivityCard from '@/components/ActivityCard';
 import FilterBar from '@/components/FilterBar';
-import { mockActivities } from '@/data/activities';
+import { useAppStore } from '@/store';
+import { isDateInRange } from '@/utils/dateFilter';
 import type { FilterOptions } from '@/types';
 
 const CalendarPage: React.FC = () => {
   const [currentDate, setCurrentDate] = useState(dayjs());
   const [selectedDate, setSelectedDate] = useState(dayjs().format('YYYY-MM-DD'));
   const [filters, setFilters] = useState<FilterOptions>({
-    city: '北京',
+    city: '',
     date: '',
     dynasty: '',
     type: ''
   });
+
+  const activities = useAppStore((s) => s.activities);
 
   const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
 
@@ -29,7 +32,7 @@ const CalendarPage: React.FC = () => {
 
     for (let i = 0; i < 42; i++) {
       const day = startDay.add(i, 'day');
-      const hasActivity = mockActivities.some(
+      const hasActivity = activities.some(
         a => dayjs(a.date).format('YYYY-MM-DD') === day.format('YYYY-MM-DD')
       );
       days.push({
@@ -41,10 +44,10 @@ const CalendarPage: React.FC = () => {
       });
     }
     return days;
-  }, [currentDate, selectedDate]);
+  }, [currentDate, selectedDate, activities]);
 
   const filteredActivities = useMemo(() => {
-    let result = [...mockActivities];
+    let result = [...activities];
 
     if (filters.city) {
       result = result.filter(a => a.city === filters.city);
@@ -55,13 +58,16 @@ const CalendarPage: React.FC = () => {
     if (filters.type) {
       result = result.filter(a => a.type === filters.type);
     }
-
-    result = result.filter(
-      a => dayjs(a.date).format('YYYY-MM-DD') === selectedDate
-    );
+    if (filters.date) {
+      result = result.filter(a => isDateInRange(a.date, filters.date));
+    } else {
+      result = result.filter(
+        a => dayjs(a.date).format('YYYY-MM-DD') === selectedDate
+      );
+    }
 
     return result;
-  }, [filters, selectedDate]);
+  }, [activities, filters, selectedDate]);
 
   const handlePrevMonth = () => {
     console.log('[CalendarPage] 上月');

@@ -140,3 +140,33 @@ export const REGISTRATION_STATUS_MAP: Record<RegistrationStatus, string> = {
   cancelled: '已取消',
   checkedIn: '已签到'
 };
+
+// 聊天消息
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  content: string;
+  time: string;
+  isRead: boolean;
+}
+
+// 聊天会话
+export interface ChatSession {
+  id: string;
+  userId: string;
+  lastMessage: string;
+  lastTime: string;
+  unreadCount: number;
+}
+
+// 相册照片
+export interface ActivityPhoto {
+  id: string;
+  activityId: string;
+  url: string;
+  uploaderId: string;
+  uploaderName: string;
+  uploadTime: string;
+}
+

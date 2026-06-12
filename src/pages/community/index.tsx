@@ -4,7 +4,7 @@ import classnames from 'classnames';
 import styles from './index.module.scss';
 import UserCard from '@/components/UserCard';
 import SafetyReminder from '@/components/SafetyReminder';
-import { mockUsers } from '@/data/users';
+import { useAppStore } from '@/store';
 import type { DynastyStyle } from '@/types';
 import { DYNASTY_MAP } from '@/types';
 
@@ -15,8 +15,11 @@ const CommunityPage: React.FC = () => {
   const [selectedCity, setSelectedCity] = useState('');
   const [sortBy, setSortBy] = useState<'latest' | 'rating'>('rating');
 
+  const users = useAppStore((s) => s.users);
+  const isUserBlocked = useAppStore((s) => s.isUserBlocked);
+
   const filteredUsers = useMemo(() => {
-    let result = [...mockUsers];
+    let result = [...users].filter((u) => !isUserBlocked(u.id));
 
     if (selectedGender !== 'all') {
       result = result.filter(u => u.gender === selectedGender);
@@ -47,7 +50,7 @@ const CommunityPage: React.FC = () => {
     }
 
     return result;
-  }, [selectedGender, selectedStyle, selectedCity, searchText, sortBy]);
+  }, [users, isUserBlocked, selectedGender, selectedStyle, selectedCity, searchText, sortBy]);
 
   const handleSearch = (e: { detail: { value: string } }) => {
     setSearchText(e.detail.value);
